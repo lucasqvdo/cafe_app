@@ -362,8 +362,7 @@
     <script>
         const API_URL = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
             ? 'http://localhost:3000'
-            : 'https://cafe-api-seu-app.onrender.com'; // <-- Depois vamos trocar pelo link real do Render
-
+            : 'https://cafe-app-rdba.onrender.com'; // link onrender
         // Inicializa o Socket e os futuros Fetchs usando a variável dinâmica
         const socket = io(API_URL);
         let cardapio = [];

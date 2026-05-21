@@ -430,7 +430,6 @@
 </head>
 <body>
     <div class="app">
-        <!-- Login Page -->
         <div id="loginPage">
             <div class="login-container">
                 <h2>☕ Login - Painel</h2>
@@ -449,7 +448,6 @@
             </div>
         </div>
 
-        <!-- Dashboard Page -->
         <div id="dashboardPage" class="hidden">
             <header class="header">
                 <h1>☕ Painel do Café</h1>
@@ -568,7 +566,6 @@
 
                 <div id="realtimeSection">
                     <div class="dashboard">
-                        <!-- Painel de Pedidos -->
                         <div class="panel">
                             <h2>Pedidos em Tempo Real</h2>
                             
@@ -584,7 +581,6 @@
                             </div>
                         </div>
 
-                        <!-- Painel de Informações -->
                         <div class="panel">
                             <h2>📊 Informações</h2>
                             <div style="padding: 1rem; color: #666;">
@@ -602,7 +598,13 @@
 
     <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        // 🟢 Configuração dinâmica da URL (Local vs Nuvem)
+        const BASE_URL = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+            ? 'http://localhost:3000'
+            : 'https://api-cafe-app-xyz.onrender.com'; // <-- Cole a sua URL real do Render aqui!
+
+        const API_URL = `${BASE_URL}/api`;
+        
         let token = localStorage.getItem('token');
         let username = localStorage.getItem('username');
         let userId = localStorage.getItem('userId');
@@ -733,15 +735,15 @@
             }
 
             container.innerHTML = usuarios.map(usuario => `
-                <div class="usuario-item">
+                <div class="usuario-item" style="padding:1rem; border:1px solid #ddd; border-radius:6px; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
                     <div class="usuario-info">
                         <strong>${usuario.username}</strong>
-                        <p>ID: ${usuario.id}</p>
-                        <p><span class="badge ${usuario.is_admin ? 'badge-admin' : 'badge-user'}">${usuario.is_admin ? 'Admin' : 'Atendente'}</span></p>
+                        <p style="font-size:0.85rem; color:#666;">ID: ${usuario.id}</p>
+                        <p><span style="background:${usuario.is_admin ? '#0d6efd' : '#6c757d'}; color:white; padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem;">${usuario.is_admin ? 'Admin' : 'Atendente'}</span></p>
                     </div>
-                    <div class="usuario-actions">
-                        <button class="btn-sm" style="background:#0d6efd; color:white;" onclick="promptAtualizarUsuario(${usuario.id}, ${usuario.is_admin})">Editar</button>
-                        <button class="btn-sm" style="background:#dc3545; color:white;" onclick="excluirUsuarioAdmin(${usuario.id})">Excluir</button>
+                    <div class="usuario-actions" style="display:flex; gap:0.5rem;">
+                        <button style="padding:0.4rem 0.8rem; border:none; border-radius:4px; cursor:pointer; background:#0d6efd; color:white;" onclick="promptAtualizarUsuario(${usuario.id}, ${usuario.is_admin})">Editar</button>
+                        <button style="padding:0.4rem 0.8rem; border:none; border-radius:4px; cursor:pointer; background:#dc3545; color:white;" onclick="excluirUsuarioAdmin(${usuario.id})">Excluir</button>
                     </div>
                 </div>
             `).join('');
@@ -877,16 +879,16 @@
             }
 
             container.innerHTML = itens.map(item => `
-                <div class="usuario-item">
+                <div class="usuario-item" style="padding:1rem; border:1px solid #ddd; border-radius:6px; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
                     <div class="usuario-info">
                         <strong>${item.nome}</strong>
-                        <p>${item.categoria} • R$ ${parseFloat(item.preco).toFixed(2)}</p>
-                        <p>${item.descricao || 'Sem descrição'}</p>
-                        <p>${item.imagem_url ? `<a href="${item.imagem_url}" target="_blank">Ver imagem</a>` : 'Sem imagem'}</p>
+                        <p style="font-size:0.85rem; color:#666;">${item.categoria} • R$ ${parseFloat(item.preco).toFixed(2)}</p>
+                        <p style="font-size:0.85rem; color:#666;">${item.descricao || 'Sem descrição'}</p>
+                        <p style="font-size:0.85rem; color:#666;">${item.imagem_url ? `<a href="${item.imagem_url}" target="_blank">Ver imagem</a>` : 'Sem imagem'}</p>
                     </div>
-                    <div class="usuario-actions">
-                        <button class="btn-sm" style="background:#0d6efd; color:white;" onclick="editarItemCardapio(${item.id})">Editar</button>
-                        <button class="btn-sm" style="background:#dc3545; color:white;" onclick="removerItemCardapio(${item.id})">Remover</button>
+                    <div class="usuario-actions" style="display:flex; gap:0.5rem;">
+                        <button style="padding:0.4rem 0.8rem; border:none; border-radius:4px; cursor:pointer; background:#0d6efd; color:white;" onclick="editarItemCardapio(${item.id})">Editar</button>
+                        <button style="padding:0.4rem 0.8rem; border:none; border-radius:4px; cursor:pointer; background:#dc3545; color:white;" onclick="removerItemCardapio(${item.id})">Remover</button>
                     </div>
                 </div>
             `).join('');
@@ -986,14 +988,15 @@
 
         // ============= SOCKET.IO =============
         function conectarSocket() {
-            socket = io(API_URL.replace('/api', ''));
+            // 🟢 Utilizando a variável dinâmica para o WebSocket
+            socket = io(BASE_URL);
 
             socket.on('connect', () => {
                 console.log('Conectado ao servidor');
                 socket.emit('registrar_atendente');
             });
 
-            socket.on('novo_pedido_recebido', (pedido) => {
+            socket.on('novoPedido', (pedido) => {
                 console.log('Novo pedido:', pedido);
                 if (pedido.status !== 'entregue') {
                     pedidos.unshift(pedido);
@@ -1003,7 +1006,7 @@
                 }
             });
 
-            socket.on('status_pedido_atualizado', (pedido) => {
+            socket.on('pedidoAtualizado', (pedido) => {
                 const index = pedidos.findIndex(p => p.id === pedido.id);
                 if (index !== -1) {
                     if (pedido.status === 'entregue') {
