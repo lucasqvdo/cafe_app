@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ Painel do Café - Atendimento/Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f1e8;
+            color: #333;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .user-info {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background: #ee5a52;
+        }
+
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 4rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-container h2 {
+            color: #8B4513;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #8B4513;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #D2691E;
+            box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background: #228B22;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-login:hover {
+            background: #1a6b1a;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5c6cb;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .panel h2 {
+            color: #8B4513;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #D2691E;
+            padding-bottom: 0.5rem;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-filtro {
+            padding: 0.5rem 1rem;
+            border: 2px solid #D2691E;
+            background: white;
+            color: #D2691E;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-filtro.ativo {
+            background: #D2691E;
+            color: white;
+        }
+
+        .btn-filtro:hover {
+            background: #D2691E;
+            color: white;
+        }
+
+        .pedidos-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .pedido-card {
+            background: #fff9f5;
+            border: 2px solid #E8D5C4;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .pedido-card.novo {
+            border-color: #228B22;
+            background: #f1f8f4;
+        }
+
+        .pedido-card:hover {
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.15);
+        }
+
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .pedido-header h3 {
+            color: #8B4513;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-preparando {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-pronto {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-entregue {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .pedido-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+        }
+
+        .pedido-info strong {
+            color: #333;
+        }
+
+        .itens-list {
+            background: white;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .item-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-line:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .item-qty {
+            color: #999;
+        }
+
+        .pedido-total {
+            font-size: 1.1rem;
+            color: #D2691E;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .status-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-status {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-pendente:hover {
+            background: #ffecb5;
+        }
+
+        .btn-preparando {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .btn-preparando:hover {
+            background: #b6d4fe;
+        }
+
+        .btn-pronto {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .btn-pronto:hover {
+            background: #badbcc;
+        }
+
+        .btn-entregue {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .btn-entregue:hover {
+            background: #c3e6cb;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .online {
+            background: #228B22;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card h3 {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            border: none;
+        }
+
+        .stat-card .number {
+            color: #D2691E;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .pedido-card {
+                padding: 0.75rem;
+            }
+
+            .status-buttons {
+                flex-direction: column;
+            }
+
+            .btn-status {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Login Page -->
+        <div id="loginPage">
+            <div class="login-container">
+                <h2>☕ Login - Painel</h2>
+                <div id="errorMessage" class="error hidden"></div>
+                <form onsubmit="fazerLogin(event)">
+                    <div class="form-group">
+                        <label for="username">Usuário:</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Senha:</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn-login">Entrar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="hidden">
+            <header class="header">
+                <h1>☕ Painel do Café</h1>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="status-indicator online"></span>
+                        <strong id="usuarioNome"></strong>
+                    </div>
+                    <div id="adminButtonContainer" class="hidden">
+                        <button class="btn-filtro" style="background:#6B46C1; color:white;" onclick="mostrarPainelAdmin()">Gerenciamento</button>
+                    </div>
+                    <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+                </div>
+            </header>
+
+            <div class="container">
+                <div class="stats" id="statsContainer"></div>
+
+                <div class="actions-bar" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; margin-bottom:1.5rem;">
+                    <button class="btn-filtro ativo" id="btnAcompanhamento" onclick="mostrarHistorico(false)">Acompanhamento</button>
+                    <button class="btn-filtro" id="btnHistorico" onclick="mostrarHistorico(true)">Histórico</button>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-left:auto;">
+                        <input id="historicoQuery" placeholder="Buscar por nome, telefone ou ID" style="padding:0.75rem 1rem; border:1px solid #ddd; border-radius:4px; min-width:240px;">
+                        <button class="btn-filtro" onclick="buscarHistorico()">Buscar</button>
+                        <button class="btn-filtro" style="background:#28A745; color:white;" onclick="voltarParaAcompanhamento()">Voltar</button>
+                    </div>
+                </div>
+
+                <div id="historicoSection" class="hidden">
+                    <div class="panel">
+                        <h2>Histórico de Pedidos</h2>
+                        <div class="pedidos-container" id="historicoContainer">
+                            <div class="empty-state">Use o campo de busca para pesquisar histórico de pedidos.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="adminSection" class="hidden">
+                    <div class="panel">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                            <h2>Área de Gerenciamento</h2>
+                            <button class="btn-filtro" style="background:#6B46C1; color:white;" onclick="voltarParaPainelPrincipal()">Voltar</button>
+                        </div>
+
+                        <div class="tabs">
+                            <button class="tab-btn active" data-target="adminUsersTab" onclick="abrirAdminTab('adminUsersTab')">Usuários</button>
+                            <button class="tab-btn" data-target="adminMenuTab" onclick="abrirAdminTab('adminMenuTab')">Cardápio</button>
+                        </div>
+
+                        <div id="adminUsersTab" class="tab-content active">
+                            <div class="panel" style="margin-bottom:1rem;">
+                                <h3>Criar novo usuário</h3>
+                                <div class="form-group">
+                                    <label for="novoUsuarioUsername">Usuário</label>
+                                    <input id="novoUsuarioUsername" type="text" placeholder="Nome de usuário">
+                                </div>
+                                <div class="form-group">
+                                    <label for="novoUsuarioPassword">Senha</label>
+                                    <input id="novoUsuarioPassword" type="password" placeholder="Senha">
+                                </div>
+                                <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
+                                    <input id="novoUsuarioAdmin" type="checkbox">
+                                    <label for="novoUsuarioAdmin" style="margin:0;">Administrador</label>
+                                </div>
+                                <button class="btn-primary" onclick="criarUsuarioAdmin()">Criar usuário</button>
+                            </div>
+
+                            <div class="panel" style="margin-bottom:1rem;">
+                                <h3>Alterar minha senha</h3>
+                                <div class="form-group">
+                                    <label for="novaSenhaUsuario">Nova senha</label>
+                                    <input id="novaSenhaUsuario" type="password" placeholder="Nova senha">
+                                </div>
+                                <button class="btn-primary" onclick="alterarMinhaSenha()">Atualizar senha</button>
+                            </div>
+
+                            <div class="panel">
+                                <h3>Usuários existentes</h3>
+                                <div id="usuariosAdminContainer" class="usuarios-list"></div>
+                            </div>
+                        </div>
+
+                        <div id="adminMenuTab" class="tab-content">
+                            <div class="panel" style="margin-bottom:1rem;">
+                                <h3>Adicionar item ao cardápio</h3>
+                                <div class="form-group">
+                                    <label for="novoItemNome">Nome</label>
+                                    <input id="novoItemNome" type="text" placeholder="Nome do item">
+                                </div>
+                                <div class="form-group">
+                                    <label for="novoItemDescricao">Descrição</label>
+                                    <input id="novoItemDescricao" type="text" placeholder="Descrição do item">
+                                </div>
+                                <div class="form-group">
+                                    <label for="novoItemCategoria">Categoria</label>
+                                    <input id="novoItemCategoria" type="text" placeholder="Categoria">
+                                </div>
+                                <div class="form-group">
+                                    <label for="novoItemPreco">Preço</label>
+                                    <input id="novoItemPreco" type="number" step="0.01" placeholder="Preço">
+                                </div>
+                                <div class="form-group">
+                                    <label for="novoItemImagem">URL da imagem</label>
+                                    <input id="novoItemImagem" type="text" placeholder="https://...">
+                                </div>
+                                <button class="btn-primary" onclick="criarItemCardapio()">Adicionar item</button>
+                            </div>
+
+                            <div class="panel">
+                                <h3>Itens do cardápio</h3>
+                                <div id="cardapioAdminContainer" class="usuarios-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="realtimeSection">
+                    <div class="dashboard">
+                        <!-- Painel de Pedidos -->
+                        <div class="panel">
+                            <h2>Pedidos em Tempo Real</h2>
+                            
+                            <div class="filtros">
+                                <button class="btn-filtro ativo" data-status="todos" onclick="filtrarPedidos('todos')">Todos</button>
+                                <button class="btn-filtro" data-status="pendente" onclick="filtrarPedidos('pendente')">Pendentes</button>
+                                <button class="btn-filtro" data-status="preparando" onclick="filtrarPedidos('preparando')">Preparando</button>
+                                <button class="btn-filtro" data-status="pronto" onclick="filtrarPedidos('pronto')">Prontos</button>
+                            </div>
+
+                            <div class="pedidos-container" id="pedidosContainer">
+                                <div class="empty-state">Aguardando pedidos...</div>
+                            </div>
+                        </div>
+
+                        <!-- Painel de Informações -->
+                        <div class="panel">
+                            <h2>📊 Informações</h2>
+                            <div style="padding: 1rem; color: #666;">
+                                <p><strong>Conexão em tempo real:</strong> ✅ Ativa</p>
+                                <p style="margin-top: 1rem;"><strong>Status do sistema:</strong> 🟢 Online</p>
+                                <p style="margin-top: 1rem; font-size: 0.9rem; color: #999;">Os pedidos aparecem aqui assim que os clientes enviam. Atualize o status de cada pedido conforme necessário.</p>
+                                <p style="margin-top: 1rem; font-size: 0.9rem; color: #999;"><strong>Dica:</strong> Use os botões de status para atualizar o andamento dos pedidos em tempo real.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let token = localStorage.getItem('token');
+        let username = localStorage.getItem('username');
+        let userId = localStorage.getItem('userId');
+        let isAdmin = localStorage.getItem('isAdmin') === 'true';
+        let socket = null;
+        let pedidos = [];
+        let filtroAtivo = 'todos';
+
+        // ============= AUTENTICAÇÃO =============
+        function fazerLogin(event) {
+            event.preventDefault();
+            const usuarioInput = document.getElementById('username').value;
+            const senhaInput = document.getElementById('password').value;
+
+            fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: usuarioInput,
+                    password: senhaInput
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.token) {
+                    token = data.token;
+                    username = usuarioInput;
+                    userId = data.user?.id || userId;
+                    isAdmin = data.user?.is_admin === true;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('userId', userId);
+                    localStorage.setItem('isAdmin', isAdmin);
+                    document.getElementById('usuarioNome').textContent = username;
+                    atualizarAdminVisibilidade();
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('dashboardPage').classList.remove('hidden');
+                    conectarSocket();
+                    carregarPedidos();
+                } else {
+                    mostrarErro(data.error || 'Erro ao fazer login');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarErro('Erro ao conectar ao servidor');
+            });
+        }
+
+        function fazerLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            token = null;
+            username = null;
+            if (socket) socket.disconnect();
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('dashboardPage').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function mostrarErro(msg) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = msg;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function atualizarAdminVisibilidade() {
+            const adminContainer = document.getElementById('adminButtonContainer');
+            if (isAdmin) {
+                adminContainer.classList.remove('hidden');
+            } else {
+                adminContainer.classList.add('hidden');
+            }
+        }
+
+        function mostrarPainelAdmin() {
+            document.getElementById('realtimeSection').classList.add('hidden');
+            document.getElementById('historicoSection').classList.add('hidden');
+            document.getElementById('adminSection').classList.remove('hidden');
+            abrirAdminTab('adminUsersTab');
+            carregarAdminDados();
+        }
+
+        function voltarParaPainelPrincipal() {
+            document.getElementById('adminSection').classList.add('hidden');
+            document.getElementById('historicoSection').classList.add('hidden');
+            document.getElementById('realtimeSection').classList.remove('hidden');
+            document.getElementById('btnAcompanhamento').classList.add('ativo');
+            document.getElementById('btnHistorico').classList.remove('ativo');
+        }
+
+        function abrirAdminTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[data-target="${tabId}"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        async function carregarAdminDados() {
+            await Promise.all([carregarUsuariosAdmin(), carregarCardapioAdmin()]);
+        }
+
+        async function carregarUsuariosAdmin() {
+            try {
+                const res = await fetch(`${API_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    renderUsuariosAdmin(data.users);
+                } else {
+                    console.error('Erro ao carregar usuários:', data.error);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+            }
+        }
+
+        async function renderUsuariosAdmin(usuarios) {
+            const container = document.getElementById('usuariosAdminContainer');
+            if (!usuarios || usuarios.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum usuário cadastrado.</div>';
+                return;
+            }
+
+            container.innerHTML = usuarios.map(usuario => `
+                <div class="usuario-item">
+                    <div class="usuario-info">
+                        <strong>${usuario.username}</strong>
+                        <p>ID: ${usuario.id}</p>
+                        <p><span class="badge ${usuario.is_admin ? 'badge-admin' : 'badge-user'}">${usuario.is_admin ? 'Admin' : 'Atendente'}</span></p>
+                    </div>
+                    <div class="usuario-actions">
+                        <button class="btn-sm" style="background:#0d6efd; color:white;" onclick="promptAtualizarUsuario(${usuario.id}, ${usuario.is_admin})">Editar</button>
+                        <button class="btn-sm" style="background:#dc3545; color:white;" onclick="excluirUsuarioAdmin(${usuario.id})">Excluir</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function promptAtualizarUsuario(id, adminAtual) {
+            const novoAdmin = confirm('Deseja tornar este usuário administrador? Clique em OK para sim, Cancelar para não.');
+            const novaSenha = prompt('Digite a nova senha para o usuário (deixe em branco para manter a senha atual):');
+            if (novaSenha === null) {
+                return;
+            }
+            atualizarUsuarioAdmin(id, novaSenha, novoAdmin);
+        }
+
+        async function criarUsuarioAdmin() {
+            const username = document.getElementById('novoUsuarioUsername').value.trim();
+            const password = document.getElementById('novoUsuarioPassword').value.trim();
+            const is_admin = document.getElementById('novoUsuarioAdmin').checked;
+
+            if (!username || !password) {
+                mostrarErro('Preencha usuário e senha para criar novo usuário.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username, password, is_admin })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('novoUsuarioUsername').value = '';
+                    document.getElementById('novoUsuarioPassword').value = '';
+                    document.getElementById('novoUsuarioAdmin').checked = false;
+                    carregarUsuariosAdmin();
+                } else {
+                    mostrarErro(data.error || 'Erro ao criar usuário');
+                }
+            } catch (error) {
+                console.error('Erro ao criar usuário:', error);
+                mostrarErro('Erro ao criar usuário');
+            }
+        }
+
+        async function atualizarUsuarioAdmin(id, password, is_admin) {
+            try {
+                const body = {};
+                if (password) body.password = password;
+                if (typeof is_admin === 'boolean') body.is_admin = is_admin;
+
+                const res = await fetch(`${API_URL}/users/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    if (parseInt(id, 10) === parseInt(userId, 10) && typeof is_admin === 'boolean') {
+                        isAdmin = data.user.is_admin;
+                        localStorage.setItem('isAdmin', isAdmin);
+                        atualizarAdminVisibilidade();
+                    }
+                    carregarUsuariosAdmin();
+                } else {
+                    mostrarErro(data.error || 'Erro ao atualizar usuário');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar usuário:', error);
+                mostrarErro('Erro ao atualizar usuário');
+            }
+        }
+
+        async function excluirUsuarioAdmin(id) {
+            if (!confirm('Tem certeza de que deseja excluir este usuário?')) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/users/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    carregarUsuariosAdmin();
+                } else {
+                    mostrarErro(data.error || 'Erro ao excluir usuário');
+                }
+            } catch (error) {
+                console.error('Erro ao excluir usuário:', error);
+                mostrarErro('Erro ao excluir usuário');
+            }
+        }
+
+        async function alterarMinhaSenha() {
+            const novaSenha = document.getElementById('novaSenhaUsuario').value.trim();
+            if (!novaSenha) {
+                mostrarErro('Digite a nova senha.');
+                return;
+            }
+            await atualizarUsuarioAdmin(userId, novaSenha, null);
+            document.getElementById('novaSenhaUsuario').value = '';
+        }
+
+        async function carregarCardapioAdmin() {
+            try {
+                const res = await fetch(`${API_URL}/cardapio`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    renderCardapioAdmin(data);
+                } else {
+                    console.error('Erro ao carregar cardápio admin:', data.error);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar cardápio admin:', error);
+            }
+        }
+
+        function renderCardapioAdmin(itens) {
+            const container = document.getElementById('cardapioAdminContainer');
+            if (!itens || itens.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum item no cardápio.</div>';
+                return;
+            }
+
+            container.innerHTML = itens.map(item => `
+                <div class="usuario-item">
+                    <div class="usuario-info">
+                        <strong>${item.nome}</strong>
+                        <p>${item.categoria} • R$ ${parseFloat(item.preco).toFixed(2)}</p>
+                        <p>${item.descricao || 'Sem descrição'}</p>
+                        <p>${item.imagem_url ? `<a href="${item.imagem_url}" target="_blank">Ver imagem</a>` : 'Sem imagem'}</p>
+                    </div>
+                    <div class="usuario-actions">
+                        <button class="btn-sm" style="background:#0d6efd; color:white;" onclick="editarItemCardapio(${item.id})">Editar</button>
+                        <button class="btn-sm" style="background:#dc3545; color:white;" onclick="removerItemCardapio(${item.id})">Remover</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function criarItemCardapio() {
+            const nome = document.getElementById('novoItemNome').value.trim();
+            const descricao = document.getElementById('novoItemDescricao').value.trim();
+            const categoria = document.getElementById('novoItemCategoria').value.trim();
+            const preco = parseFloat(document.getElementById('novoItemPreco').value);
+            const imagem_url = document.getElementById('novoItemImagem').value.trim();
+
+            if (!nome || !categoria || isNaN(preco)) {
+                mostrarErro('Preencha nome, categoria e preço para o item.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/cardapio`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ nome, descricao, categoria, preco, imagem_url })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('novoItemNome').value = '';
+                    document.getElementById('novoItemDescricao').value = '';
+                    document.getElementById('novoItemCategoria').value = '';
+                    document.getElementById('novoItemPreco').value = '';
+                    document.getElementById('novoItemImagem').value = '';
+                    carregarCardapioAdmin();
+                } else {
+                    mostrarErro(data.error || 'Erro ao criar item do cardápio');
+                }
+            } catch (error) {
+                console.error('Erro ao criar item do cardápio:', error);
+                mostrarErro('Erro ao criar item do cardápio');
+            }
+        }
+
+        async function editarItemCardapio(id) {
+            const nome = prompt('Nome do item:');
+            if (nome === null) return;
+            const descricao = prompt('Descrição do item (vazio = manter atual):');
+            if (descricao === null) return;
+            const categoria = prompt('Categoria do item:');
+            if (categoria === null) return;
+            const preco = prompt('Preço do item:');
+            if (preco === null) return;
+            const imagem_url = prompt('URL da imagem do item (vazio = manter atual):');
+            if (imagem_url === null) return;
+
+            try {
+                const res = await fetch(`${API_URL}/cardapio/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ nome, descricao, categoria, preco: parseFloat(preco), imagem_url })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    carregarCardapioAdmin();
+                } else {
+                    mostrarErro(data.error || 'Erro ao atualizar item do cardápio');
+                }
+            } catch (error) {
+                console.error('Erro ao editar item do cardápio:', error);
+                mostrarErro('Erro ao editar item do cardápio');
+            }
+        }
+
+        async function removerItemCardapio(id) {
+            if (!confirm('Deseja remover este item do cardápio?')) {
+                return;
+            }
+            try {
+                const res = await fetch(`${API_URL}/cardapio/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    carregarCardapioAdmin();
+                } else {
+                    mostrarErro(data.error || 'Erro ao remover item do cardápio');
+                }
+            } catch (error) {
+                console.error('Erro ao remover item do cardápio:', error);
+                mostrarErro('Erro ao remover item do cardápio');
+            }
+        }
+
+        // ============= SOCKET.IO =============
+        function conectarSocket() {
+            socket = io(API_URL.replace('/api', ''));
+
+            socket.on('connect', () => {
+                console.log('Conectado ao servidor');
+                socket.emit('registrar_atendente');
+            });
+
+            socket.on('novo_pedido_recebido', (pedido) => {
+                console.log('Novo pedido:', pedido);
+                if (pedido.status !== 'entregue') {
+                    pedidos.unshift(pedido);
+                    renderPedidos();
+                    atualizarStats();
+                    marcarComoNovo(pedido.id);
+                }
+            });
+
+            socket.on('status_pedido_atualizado', (pedido) => {
+                const index = pedidos.findIndex(p => p.id === pedido.id);
+                if (index !== -1) {
+                    if (pedido.status === 'entregue') {
+                        pedidos.splice(index, 1);
+                    } else {
+                        pedidos[index] = pedido;
+                    }
+                    renderPedidos();
+                    atualizarStats();
+                }
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Desconectado do servidor');
+            });
+        }
+
+        // ============= PEDIDOS =============
+        async function carregarPedidos() {
+            try {
+                const res = await fetch(`${API_URL}/pedidos`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    pedidos = await res.json();
+                    renderPedidos();
+                    atualizarStats();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar pedidos:', error);
+            }
+        }
+
+        function renderPedidos() {
+            const container = document.getElementById('pedidosContainer');
+            let pedidosFiltrados = pedidos.filter(p => p.status !== 'entregue');
+
+            if (filtroAtivo !== 'todos') {
+                pedidosFiltrados = pedidosFiltrados.filter(p => p.status === filtroAtivo);
+            }
+
+            if (pedidosFiltrados.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido</div>';
+                return;
+            }
+
+            container.innerHTML = pedidosFiltrados.map(pedido => `
+                <div class="pedido-card" id="pedido-${pedido.id}">
+                    <div class="pedido-header">
+                        <h3>Mesa ${pedido.mesa} - ${pedido.cliente_nome}</h3>
+                        <span class="status-badge status-${pedido.status}">${pedido.status}</span>
+                    </div>
+                    
+                    <div class="pedido-info">
+                        <strong>Telefone:</strong> ${pedido.cliente_telefone}<br>
+                        <strong>Horário:</strong> ${new Date(pedido.created_at).toLocaleTimeString()}<br>
+                    </div>
+
+                    <div class="itens-list">
+                        ${pedido.itens.map(item => `
+                            <div class="item-line">
+                                <span class="item-name">${item.nome}</span>
+                                <span class="item-qty">x${item.quantidade}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="pedido-total">Total: R$ ${parseFloat(pedido.total).toFixed(2)}</div>
+
+                    <div class="status-buttons">
+                        <button class="btn-status btn-pendente" onclick="atualizarStatus(${pedido.id}, 'pendente')">Pendente</button>
+                        <button class="btn-status btn-preparando" onclick="atualizarStatus(${pedido.id}, 'preparando')">Preparando</button>
+                        <button class="btn-status btn-pronto" onclick="atualizarStatus(${pedido.id}, 'pronto')">Pronto</button>
+                        <button class="btn-status btn-entregue" onclick="atualizarStatus(${pedido.id}, 'entregue')">Entregue</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function atualizarStatus(pedidoId, novoStatus) {
+            try {
+                const res = await fetch(`${API_URL}/pedidos/${pedidoId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: novoStatus })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const index = pedidos.findIndex(p => p.id === pedidoId);
+                    if (index !== -1) {
+                        if (data.pedido.status === 'entregue') {
+                            pedidos.splice(index, 1);
+                        } else {
+                            pedidos[index] = data.pedido;
+                        }
+                        renderPedidos();
+                        atualizarStats();
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+            }
+        }
+
+        function filtrarPedidos(status) {
+            filtroAtivo = status;
+            document.querySelectorAll('.btn-filtro').forEach(btn => {
+                btn.classList.remove('ativo');
+            });
+            document.querySelector(`[data-status="${status}"]`).classList.add('ativo');
+            renderPedidos();
+        }
+
+        function marcarComoNovo(pedidoId) {
+            const card = document.getElementById(`pedido-${pedidoId}`);
+            if (card) {
+                card.classList.add('novo');
+                setTimeout(() => {
+                    card.classList.remove('novo');
+                }, 3000);
+            }
+        }
+
+        async function buscarHistorico() {
+            const query = document.getElementById('historicoQuery').value.trim();
+            const container = document.getElementById('historicoContainer');
+            container.innerHTML = '<div class="empty-state">Buscando histórico...</div>';
+
+            try {
+                const url = `${API_URL}/pedidos/historico${query ? `?q=${encodeURIComponent(query)}` : ''}`;
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    container.innerHTML = `<div class="empty-state">Erro: ${data.error || 'Não foi possível buscar histórico'}</div>`;
+                    return;
+                }
+
+                renderHistorico(data.pedidos);
+            } catch (error) {
+                console.error('Erro ao buscar histórico:', error);
+                container.innerHTML = '<div class="empty-state">Erro ao carregar histórico</div>';
+            }
+        }
+
+        function renderHistorico(pedidosHistorico) {
+            const container = document.getElementById('historicoContainer');
+            if (!pedidosHistorico || pedidosHistorico.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido encontrado no histórico.</div>';
+                return;
+            }
+
+            container.innerHTML = pedidosHistorico.map(pedido => `
+                <div class="pedido-card">
+                    <div class="pedido-header">
+                        <h3>Pedido #${pedido.id} - Mesa ${pedido.mesa}</h3>
+                        <span class="status-badge status-${pedido.status}">${pedido.status}</span>
+                    </div>
+                    <div class="pedido-info">
+                        <strong>Cliente:</strong> ${pedido.cliente_nome}<br>
+                        <strong>Telefone:</strong> ${pedido.cliente_telefone}<br>
+                        <strong>Data:</strong> ${new Date(pedido.created_at).toLocaleString()}<br>
+                    </div>
+                    <div class="itens-list">
+                        ${pedido.itens.map(item => `
+                            <div class="item-line">
+                                <span class="item-name">${item.nome}</span>
+                                <span class="item-qty">x${item.quantidade}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="pedido-total">Total: R$ ${parseFloat(pedido.total).toFixed(2)}</div>
+                </div>
+            `).join('');
+        }
+
+        function mostrarHistorico(exibirHistorico) {
+            document.getElementById('historicoSection').classList.toggle('hidden', !exibirHistorico);
+            document.getElementById('realtimeSection').classList.toggle('hidden', exibirHistorico);
+            document.getElementById('btnAcompanhamento').classList.toggle('ativo', !exibirHistorico);
+            document.getElementById('btnHistorico').classList.toggle('ativo', exibirHistorico);
+
+            if (exibirHistorico) {
+                buscarHistorico();
+            }
+        }
+
+        function voltarParaAcompanhamento() {
+            mostrarHistorico(false);
+        }
+
+        function atualizarStats() {
+            const visiblePedidos = pedidos.filter(p => p.status !== 'entregue');
+            const stats = {
+                pendentes: visiblePedidos.filter(p => p.status === 'pendente').length,
+                preparando: visiblePedidos.filter(p => p.status === 'preparando').length,
+                prontos: visiblePedidos.filter(p => p.status === 'pronto').length,
+                total: visiblePedidos.length
+            };
+
+            document.getElementById('statsContainer').innerHTML = `
+                <div class="stat-card">
+                    <h3>Total de Pedidos</h3>
+                    <div class="number">${stats.total}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pendentes</h3>
+                    <div class="number" style="color: #856404">${stats.pendentes}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Em Preparo</h3>
+                    <div class="number" style="color: #084298">${stats.preparando}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Prontos</h3>
+                    <div class="number" style="color: #0f5132">${stats.prontos}</div>
+                </div>
+            `;
+        }
+
+        // ============= INICIALIZAÇÃO =============
+        if (token && username) {
+            document.getElementById('usuarioNome').textContent = username;
+            atualizarAdminVisibilidade();
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            conectarSocket();
+            carregarPedidos();
+        }
+    </script>
+</body>
+</html>

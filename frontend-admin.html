@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ Painel do Administrador - Café</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f1e8;
+            color: #333;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            background: #DC3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #C82333;
+        }
+
+        .login-container {
+            display: none;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .login-box h2 {
+            color: #8B4513;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #8B4513;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            background: #8B4513;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #6B3410;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            color: #8B4513;
+        }
+
+        .tab-btn.active {
+            color: #8B4513;
+            border-bottom-color: #8B4513;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #8B4513;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .usuarios-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .usuario-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .usuario-item:last-child {
+            border-bottom: none;
+        }
+
+        .usuario-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .usuario-info p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .usuario-info strong {
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background: #FFC107;
+            color: #333;
+        }
+
+        .badge-user {
+            background: #E8E8E8;
+            color: #666;
+        }
+
+        .usuario-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #007BFF;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #0056b3;
+        }
+
+        .btn-reset {
+            background: #FFC107;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #E0A800;
+        }
+
+        .btn-delete {
+            background: #DC3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #C82333;
+        }
+
+        .form-criar-usuario {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .usuario-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .usuario-actions {
+                width: 100%;
+            }
+
+            .tabs {
+                gap: 0.5rem;
+            }
+
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #D4EDDA;
+            color: #155724;
+            border: 1px solid #C3E6CB;
+        }
+
+        .alert-danger {
+            background: #F8D7DA;
+            color: #721C24;
+            border: 1px solid #F5C6CB;
+        }
+
+        .clientes-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cliente-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .cliente-item:hover {
+            background: #f9f9f9;
+        }
+
+        .cliente-item:last-child {
+            border-bottom: none;
+        }
+
+        .cliente-info {
+            flex: 1;
+        }
+
+        .cliente-info strong {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .cliente-info p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .cliente-stats {
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .cliente-stats p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .cliente-stats strong {
+            font-size: 1.1rem;
+            color: #8B4513;
+        }
+
+        .pedidos-cliente {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .pedido-card {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #8B4513;
+            border-radius: 4px;
+        }
+
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pendente {
+            background: #FFC107;
+            color: #333;
+        }
+
+        .status-preparando {
+            background: #17A2B8;
+            color: white;
+        }
+
+        .status-pronto {
+            background: #28A745;
+            color: white;
+        }
+
+        .status-entregue {
+            background: #6C757D;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #8B4513;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 2rem;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: #8B4513;
+            font-size: 1.3rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #6C757D;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #5A6268;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginContainer" class="login-container" style="display: flex;">
+        <div class="login-box">
+            <h2>☕ Admin - Login</h2>
+            <div id="loginAlert" class="alert"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="appContainer" class="app" style="display: none;">
+        <div class="header">
+            <h1>☕ Painel do Administrador</h1>
+            <div class="header-right">
+                <div class="user-info">
+                    Olá, <strong id="usernameDisplay"></strong>
+                </div>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="alert" class="alert"></div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="mostrarAba('usuarios')">👥 Usuários</button>
+                <button class="tab-btn" onclick="mostrarAba('clientes')">📞 Clientes</button>
+                <button class="tab-btn" onclick="mostrarAba('senha')">🔒 Alterar Senha</button>
+            </div>
+
+            <!-- ABA: USUÁRIOS -->
+            <div id="usuarios" class="tab-content active">
+                <h2 class="section-title">Gerenciar Usuários</h2>
+
+                <div class="form-criar-usuario">
+                    <h3 style="color: #333; margin-bottom: 1rem;">➕ Criar Novo Usuário</h3>
+                    <form id="formCriarUsuario">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="novoUsername">Usuário</label>
+                                <input type="text" id="novoUsername" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="novoPassword">Senha</label>
+                                <input type="password" id="novoPassword" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="novoIsAdmin">
+                                    É Administrador?
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Criar Usuário</button>
+                    </form>
+                </div>
+
+                <h3 style="color: #333; margin-bottom: 1rem;">📋 Lista de Usuários</h3>
+                <div id="listaUsuarios" class="usuarios-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Carregando usuários...
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA: CLIENTES -->
+            <div id="clientes" class="tab-content">
+                <h2 class="section-title">Gerenciar Clientes</h2>
+                <div id="listaClientes" class="clientes-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Carregando clientes...
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA: ALTERAR SENHA -->
+            <div id="senha" class="tab-content">
+                <h2 class="section-title">🔒 Alterar Sua Senha</h2>
+                <div class="form-criar-usuario">
+                    <form id="formAlterarSenha">
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label for="senhaAtual">Senha Atual</label>
+                                <input type="password" id="senhaAtual" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="novaSenha">Nova Senha</label>
+                                <input type="password" id="novaSenha" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmarSenha">Confirmar Senha</label>
+                                <input type="password" id="confirmarSenha" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Alterar Senha</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITAR USUÁRIO -->
+    <div id="modalEditarUsuario" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Usuário</h2>
+                <button class="close-btn" onclick="fecharModal('modalEditarUsuario')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarUsuario">
+                    <div class="form-group">
+                        <label for="editUsername">Usuário</label>
+                        <input type="text" id="editUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="editIsAdmin">
+                            É Administrador?
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="fecharModal('modalEditarUsuario')">Cancelar</button>
+                <button class="btn-primary" onclick="salvarEdicaoUsuario()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RESETAR SENHA -->
+    <div id="modalResetarSenha" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔑 Resetar Senha</h2>
+                <button class="close-btn" onclick="fecharModal('modalResetarSenha')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Usuário: <strong id="resetUsuario"></strong></p>
+                <form id="formResetarSenha">
+                    <div class="form-group">
+                        <label for="novaSenhaReset">Nova Senha</label>
+                        <input type="password" id="novaSenhaReset" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="fecharModal('modalResetarSenha')">Cancelar</button>
+                <button class="btn-primary" onclick="salvarResetSenha()">Resetar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VER PEDIDOS DO CLIENTE -->
+    <div id="modalPedidosCliente" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📦 Pedidos de <strong id="modalClienteNome"></strong></h2>
+                <button class="close-btn" onclick="fecharModal('modalPedidosCliente')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="pedidosClienteLista"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let token = localStorage.getItem('token');
+        let usuarioAtual = JSON.parse(localStorage.getItem('usuario') || '{}');
+        let usuarioEditandoId = null;
+        let usuarioResetandoId = null;
+
+        // ============ INICIALIZAÇÃO ============
+        window.addEventListener('DOMContentLoaded', () => {
+            if (token) {
+                verificarPermissoes();
+            } else {
+                mostrarLogin();
+            }
+        });
+
+        async function verificarPermissoes() {
+            try {
+                const resposta = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!resposta.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('usuario');
+                    mostrarLogin();
+                    return;
+                }
+
+                const data = await resposta.json();
+                usuarioAtual = data.usuario;
+                localStorage.setItem('usuario', JSON.stringify(usuarioAtual));
+
+                mostrarApp();
+                
+                // Ocultar aba de usuários se não for admin
+                const btnUsuarios = document.querySelector('[onclick="mostrarAba(\'usuarios\')"]');
+                if (!usuarioAtual.is_admin) {
+                    btnUsuarios.style.display = 'none';
+                    // Se estava na aba de usuários, ir para clientes
+                    if (document.getElementById('usuarios').classList.contains('active')) {
+                        mostrarAba('clientes');
+                    }
+                } else {
+                    btnUsuarios.style.display = 'block';
+                    carregarUsuarios();
+                }
+
+                carregarClientes();
+            } catch (erro) {
+                console.error(erro);
+                mostrarLogin();
+            }
+        }
+
+        // ============ AUTENTICAÇÃO ============
+        function mostrarLogin() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        function mostrarApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            document.getElementById('usernameDisplay').textContent = usuarioAtual.username || '';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const resposta = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('loginAlert', data.error, 'danger');
+                    return;
+                }
+
+                token = data.token;
+                usuarioAtual = data.usuario;
+                localStorage.setItem('token', token);
+                localStorage.setItem('usuario', JSON.stringify(usuarioAtual));
+
+                document.getElementById('loginForm').reset();
+                
+                // Ocultar aba de usuários se não for admin
+                const btnUsuarios = document.querySelector('[onclick="mostrarAba(\'usuarios\')"]');
+                if (!usuarioAtual.is_admin) {
+                    btnUsuarios.style.display = 'none';
+                } else {
+                    btnUsuarios.style.display = 'block';
+                }
+
+                mostrarApp();
+                carregarClientes();
+                if (usuarioAtual.is_admin) {
+                    carregarUsuarios();
+                }
+            } catch (erro) {
+                mostrarAlerta('loginAlert', 'Erro ao conectar ao servidor', 'danger');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            token = null;
+            usuarioAtual = {};
+            mostrarLogin();
+        }
+
+        // ============ USUÁRIOS ============
+        async function carregarUsuarios() {
+            try {
+                const resposta = await fetch(`${API_URL}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('alert', data.error, 'danger');
+                    return;
+                }
+
+                renderizarUsuarios(data.usuarios);
+            } catch (erro) {
+                mostrarAlerta('alert', 'Erro ao carregar usuários', 'danger');
+            }
+        }
+
+        function renderizarUsuarios(usuarios) {
+            const html = usuarios.map(user => `
+                <div class="usuario-item">
+                    <div class="usuario-info">
+                        <strong>${user.username}</strong>
+                        <p>ID: ${user.id}</p>
+                        <p>Criado em: ${new Date(user.created_at).toLocaleString('pt-BR')}</p>
+                        <span class="badge ${user.is_admin ? 'badge-admin' : 'badge-user'}">
+                            ${user.is_admin ? '⭐ Administrador' : '👤 Atendente'}
+                        </span>
+                    </div>
+                    <div class="usuario-actions">
+                        ${user.id !== usuarioAtual.id ? `
+                            <button class="btn-sm btn-edit" onclick="abrirEditarUsuario(${user.id}, '${user.username}', ${user.is_admin})">Editar</button>
+                            <button class="btn-sm btn-reset" onclick="abrirResetarSenha(${user.id}, '${user.username}')">Reset Senha</button>
+                            <button class="btn-sm btn-delete" onclick="deletarUsuario(${user.id}, '${user.username}')">Deletar</button>
+                        ` : `
+                            <span style="color: #999; font-size: 0.9rem;">Sua conta</span>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('listaUsuarios').innerHTML = html || '<div class="empty-state"><p>Nenhum usuário encontrado</p></div>';
+        }
+
+        document.getElementById('formCriarUsuario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('novoUsername').value;
+            const password = document.getElementById('novoPassword').value;
+            const is_admin = document.getElementById('novoIsAdmin').checked;
+
+            if (password.length < 6) {
+                mostrarAlerta('alert', 'Senha deve ter no mínimo 6 caracteres', 'danger');
+                return;
+            }
+
+            try {
+                const resposta = await fetch(`${API_URL}/admin/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username, password, is_admin })
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('alert', data.error, 'danger');
+                    return;
+                }
+
+                mostrarAlerta('alert', data.message, 'success');
+                document.getElementById('formCriarUsuario').reset();
+                carregarUsuarios();
+            } catch (erro) {
+                mostrarAlerta('alert', 'Erro ao criar usuário', 'danger');
+            }
+        });
+
+        function abrirEditarUsuario(id, username, is_admin) {
+            usuarioEditandoId = id;
+            document.getElementById('editUsername').value = username;
+            document.getElementById('editIsAdmin').checked = is_admin;
+            document.getElementById('modalEditarUsuario').classList.add('show');
+        }
+
+        async function salvarEdicaoUsuario() {
+            const username = document.getElementById('editUsername').value;
+            const is_admin = document.getElementById('editIsAdmin').checked;
+
+            try {
+                const resposta = await fetch(`${API_URL}/admin/users/${usuarioEditandoId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username, is_admin })
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('alert', data.error, 'danger');
+                    return;
+                }
+
+                mostrarAlerta('alert', data.message, 'success');
+                fecharModal('modalEditarUsuario');
+                carregarUsuarios();
+            } catch (erro) {
+                mostrarAlerta('alert', 'Erro ao editar usuário', 'danger');
+            }
+        }
+
+        function abrirResetarSenha(id, username) {
+            usuarioResetandoId = id;
+            document.getElementById('resetUsuario').textContent = username;
+            document.getElementById('modalResetarSenha').classList.add('show');
+        }
+
+        async function salvarResetSenha() {
+            const novaSenha = document.getElementById('novaSenhaReset').value;
+
+            if (novaSenha.length < 6) {
+                mostrarAlerta('alert', 'Senha deve ter no mínimo 6 caracteres', 'danger');
+                return;
+            }
+
+            try {
+                const resposta = await fetch(`${API_URL}/admin/users/${usuarioResetandoId}/reset-password`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ novaSenha })
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('alert', data.error, 'danger');
+                    return;
+                }
+
+                mostrarAlerta('alert', data.message, 'success');
+                fecharModal('modalResetarSenha');
+                carregarUsuarios();
+            } catch (erro) {
+                mostrarAlerta('alert', 'Erro ao resetar senha', 'danger');
+            }
+        }
+
+        async function deletarUsuario(id, username) {
+            if (!confirm(`Tem certeza que deseja deletar o usuário "${username}"?`)) {
+                return;
+            }
+
+            try {
+                const resposta = await fetch(`${API_URL}/admin/users/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('alert', data.error, 'danger');
+                    return;
+                }
+
+                mostrarAlerta('alert', data.message, 'success');
+                carregarUsuarios();
+            } catch (erro) {
+                mostrarAlerta('alert', 'Erro ao deletar usuário', 'danger');
+            }
+        }
+
+        // ============ CLIENTES ============
+        async function carregarClientes() {
+            try {
+                const resposta = await fetch(`${API_URL}/clientes`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('alert', data.error, 'danger');
+                    return;
+                }
+
+                renderizarClientes(data.clientes);
+            } catch (erro) {
+                mostrarAlerta('alert', 'Erro ao carregar clientes', 'danger');
+            }
+        }
+
+        function renderizarClientes(clientes) {
+            const html = clientes.map(cliente => `
+                <div class="cliente-item" onclick="carregarPedidosCliente('${cliente.cliente_telefone}', '${cliente.cliente_nome}')">
+                    <div class="cliente-info">
+                        <strong>${cliente.cliente_nome}</strong>
+                        <p>📞 ${cliente.cliente_telefone}</p>
+                    </div>
+                    <div class="cliente-stats">
+                        <p>Pedidos: <strong>${cliente.total_pedidos}</strong></p>
+                        <p>Último: ${new Date(cliente.ultimo_pedido).toLocaleString('pt-BR')}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('listaClientes').innerHTML = html || '<div class="empty-state"><p>Nenhum cliente encontrado</p></div>';
+        }
+
+        async function carregarPedidosCliente(telefone, nome) {
+            document.getElementById('modalClienteNome').textContent = nome;
+            document.getElementById('pedidosClienteLista').innerHTML = '<div class="loading"><div class="spinner"></div>Carregando pedidos...</div>';
+            document.getElementById('modalPedidosCliente').classList.add('show');
+
+            try {
+                const resposta = await fetch(`${API_URL}/clientes/${telefone}/pedidos`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    document.getElementById('pedidosClienteLista').innerHTML = `<p style="color: red;">Erro: ${data.error}</p>`;
+                    return;
+                }
+
+                renderizarPedidosCliente(data.pedidos);
+            } catch (erro) {
+                document.getElementById('pedidosClienteLista').innerHTML = '<p style="color: red;">Erro ao carregar pedidos</p>';
+            }
+        }
+
+        function renderizarPedidosCliente(pedidos) {
+            if (pedidos.length === 0) {
+                document.getElementById('pedidosClienteLista').innerHTML = '<div class="empty-state"><p>Nenhum pedido encontrado</p></div>';
+                return;
+            }
+
+            const html = pedidos.map(pedido => `
+                <div class="pedido-card">
+                    <div class="pedido-header">
+                        <div>
+                            <strong>Pedido #${pedido.id}</strong> - Mesa ${pedido.mesa}
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">
+                                ${new Date(pedido.created_at).toLocaleString('pt-BR')}
+                            </p>
+                        </div>
+                        <span class="status-badge status-${pedido.status}">${pedido.status.toUpperCase()}</span>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 0.5rem;"><strong>Itens:</strong></p>
+                        ${pedido.itens.map(item => `
+                            <p style="font-size: 0.9rem; color: #666; margin: 0.25rem 0;">
+                                • ${item.nome} (${item.quantidade}x) - R$ ${(item.preco_unitario * item.quantidade).toFixed(2)}
+                            </p>
+                        `).join('')}
+                        <p style="margin-top: 0.5rem; border-top: 1px solid #eee; padding-top: 0.5rem;">
+                            <strong>Total: R$ ${pedido.total.toFixed(2)}</strong>
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('pedidosClienteLista').innerHTML = html;
+        }
+
+        // ============ ALTERAR SENHA ============
+        document.getElementById('formAlterarSenha').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const senhaAtual = document.getElementById('senhaAtual').value;
+            const novaSenha = document.getElementById('novaSenha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+
+            if (novaSenha !== confirmarSenha) {
+                mostrarAlerta('alert', 'As senhas não conferem', 'danger');
+                return;
+            }
+
+            if (novaSenha.length < 6) {
+                mostrarAlerta('alert', 'Senha deve ter no mínimo 6 caracteres', 'danger');
+                return;
+            }
+
+            try {
+                const resposta = await fetch(`${API_URL}/auth/change-password`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ senhaAtual, novaSenha, confirmarSenha })
+                });
+
+                const data = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarAlerta('alert', data.error, 'danger');
+                    return;
+                }
+
+                mostrarAlerta('alert', data.message, 'success');
+                document.getElementById('formAlterarSenha').reset();
+            } catch (erro) {
+                mostrarAlerta('alert', 'Erro ao alterar senha', 'danger');
+            }
+        });
+
+        // ============ UTILITÁRIOS ============
+        function mostrarAba(abaId) {
+            // Proteção: apenas admins podem acessar aba de usuários
+            if (abaId === 'usuarios' && !usuarioAtual.is_admin) {
+                mostrarAlerta('alert', 'Acesso negado. Apenas administradores podem gerenciar usuários.', 'danger');
+                return;
+            }
+
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(abaId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (abaId === 'clientes') {
+                carregarClientes();
+            }
+        }
+
+        function mostrarAlerta(elementId, mensagem, tipo) {
+            const alerta = document.getElementById(elementId);
+            alerta.textContent = mensagem;
+            alerta.className = `alert show alert-${tipo}`;
+            setTimeout(() => alerta.classList.remove('show'), 5000);
+        }
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        window.onclick = function(event) {
+            const modais = document.querySelectorAll('.modal');
+            modais.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
